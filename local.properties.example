@@ -1,0 +1,34 @@
+# LLM provider configuration. Copy this file to `local.properties` (gitignored — it holds real API
+# keys) and set the values for your provider. Every key has a DRAFTS_* env override.
+#
+# Select the provider with `drafts.provider` (or the DRAFTS_PROVIDER env var):
+#   - `ollama`     (default) — local Ollama. Requires ollama.endpoint / ollama.model.
+#   - `openrouter` — cloud models via OpenRouter (OpenAI-compatible). Requires openrouter.* keys.
+#   - `opencode`   — OpenCode Go gateway. Requires opencode.* keys.
+
+# --- Ollama (default provider) ---
+# Env overrides: DRAFTS_OLLAMA_ENDPOINT / DRAFTS_OLLAMA_MODEL / DRAFTS_OLLAMA_NUM_CTX
+ollama.endpoint=http://localhost:11434
+ollama.model=gemma4:12b
+# Context window pinned per request. Ollama's default (~4K) truncates generation mid-reasoning once
+# the agent prompt is loaded; 8192 is the engine default, raise it for chatty reasoning models.
+#ollama.numctx=16384
+
+# --- OpenRouter (cloud, OpenAI-compatible) ---
+# Env overrides: DRAFTS_OPENROUTER_API_KEY / DRAFTS_OPENROUTER_MODEL / DRAFTS_OPENROUTER_ENDPOINT
+#drafts.provider=openrouter
+#openrouter.apikey=sk-or-v1-...
+# The model id selects the underlying cloud model — pick a VISION + tool-calling model
+# (e.g. openai/gpt-4o, anthropic/claude-3.5-sonnet, google/gemini-flash-2.0).
+#openrouter.model=openai/gpt-4o
+
+# --- OpenCode Go (cloud gateway) ---
+# Env overrides: DRAFTS_OPENCODE_API_KEY / DRAFTS_OPENCODE_MODEL / DRAFTS_OPENCODE_ENDPOINT /
+#                DRAFTS_OPENCODE_VISION_MODEL
+#drafts.provider=opencode
+#opencode.apikey=...
+#opencode.endpoint=https://opencode.ai/zen/go
+#opencode.model=qwen3.8-flash
+# qwen3.8-flash is TEXT-ONLY on this gateway — vision requests (critique, sketch entry) need a
+# vision-capable model:
+#opencode.visionmodel=kimi-k3
