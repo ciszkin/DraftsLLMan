@@ -11,6 +11,10 @@ import ai.koog.prompt.message.MessagePart
  * loop WITHOUT executing the tool (live finding 2026-09-03, OpenCode Go kimi-k3: the emit call was
  * dropped). Stripping the text from tool-carrying responses leaves only the tool edge active — the
  * tool executes; a pure-text response still finishes the loop.
+ *
+ * Applied inside [requestLlmToleratingReasoning] — the single choke point every agent-loop LLM call
+ * goes through — so a call site cannot forget it (the 2026-09-03 fix applied it per call site and
+ * two `nodeSendToolResult` sites were missed).
  */
 internal fun Message.Assistant.routeToToolsWhenPresent(): Message.Assistant =
     if (parts.any { it is MessagePart.Tool.Call })
@@ -30,19 +34,20 @@ private fun Message.Assistant.isRoutable(): Boolean =
 
 /**
  * Calls [requestLLM]; if the response is reasoning-only (no tool call, no text), appends a nudge
- * user-message and retries, up to [maxNudges]. Returns the first routable response; throws
- * [ReasoningLoopReached] if the model stays reasoning-only past the cap. Runs inside `writeSession`,
- * so it adds NO graph nodes (zero `maxIterations` cost). Shared by [draftsVisionStrategy] and
- * [reasoningTolerantStrategy].
+ * user-message and retries, up to [maxNudges]. Returns the first routable response with the
+ * text+tool guard applied ([routeToToolsWhenPresent]) — a pending tool call always beats koog's
+ * `onTextMessage` finish edge, at every call site, by construction; throws [ReasoningLoopReached]
+ * if the model stays reasoning-only past the cap. Runs inside `writeSession`, so it adds NO graph
+ * nodes (zero `maxIterations` cost). Shared by [draftsVisionStrategy] and [reasoningTolerantStrategy].
  */
 internal suspend fun AIAgentLLMWriteSession.requestLlmToleratingReasoning(maxNudges: Int): Message.Assistant {
     repeat(maxNudges) {
         val response = requestLLM()
-        if (response.isRoutable()) return response
+        if (response.isRoutable()) return response.routeToToolsWhenPresent()
         appendPrompt { user { text(REASONING_NUDGE) } }
     }
     val last = requestLLM()
-    if (last.isRoutable()) return last
+    if (last.isRoutable()) return last.routeToToolsWhenPresent()
     throw ReasoningLoopReached(maxNudges)
 }
 

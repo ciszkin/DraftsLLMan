@@ -2,10 +2,11 @@
 
 **A zero-coordinate, multi-agent engine that turns text and sketches into constraint-correct SVG.**
 
-The LLM never emits a single coordinate. It states *relational intents* — `align`, `distance_ratio`,
-`connect`, `contain`, `distribute`, `relative_size` — and a Cassowary constraint solver computes the
-exact geometry. That is the whole trick: LLMs are bad at arithmetic and great at relationships, so
-the drawings come out aligned and non-overlapping instead of collapsed into a blob.
+The LLM never places anything. It declares component sizes and *relational intents* —
+`align`, `distance_ratio`, `connect`, `contain`, `distribute`, `relative_size` — and a Cassowary
+constraint solver computes every position. That is the whole trick: LLMs are bad at arithmetic and
+great at relationships, so the drawings come out aligned and non-overlapping instead of collapsed
+into a blob.
 
 ```
 "draw a bicycle"
@@ -47,7 +48,7 @@ Prints the SVG to stdout and writes `output/<slug>-<epoch>.svg` + a full LLM/too
 ## Tests
 
 ```bash
-./gradlew test             # 453 deterministic tests — no network, headless
+./gradlew test             # 454 deterministic tests — no network, headless
 ./gradlew cleanTest test   # force re-run (Gradle skips unchanged test tasks)
 ./gradlew test --tests "by.ciszkin.draftsllman.solver.ConstraintSolverTest"
 ```

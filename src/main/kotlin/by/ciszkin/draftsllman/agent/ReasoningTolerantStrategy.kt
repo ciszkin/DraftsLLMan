@@ -19,12 +19,12 @@ import ai.koog.prompt.message.Message
  */
 fun reasoningTolerantStrategy(maxNudges: Int = 3): AIAgentGraphStrategy<String, String> =
     strategy<String, String>("reasoning_tolerant") {
-        // Inline variant of nodeCallLlmToleratingReasoning + the text+tool guard (live finding:
-        // a text+tool response must NOT finish the loop — strip text so only the tool edge fires).
+        // Inline variant of nodeCallLlmToleratingReasoning (the text+tool guard lives inside
+        // requestLlmToleratingReasoning — live finding: a text+tool response must NOT finish the loop).
         val nodeCallLLM by node<String, Message.Assistant>("callLLM") { message ->
             llm.writeSession {
                 appendPrompt { user(message) }
-                requestLlmToleratingReasoning(maxNudges).routeToToolsWhenPresent()
+                requestLlmToleratingReasoning(maxNudges)
             }
         }
         val nodeExecuteTool by nodeExecuteTools()
@@ -34,7 +34,7 @@ fun reasoningTolerantStrategy(maxNudges: Int = 3): AIAgentGraphStrategy<String, 
                 appendPrompt {
                     user { results.toolResults.forEach { res -> toolResult(res.toMessagePart()) } }
                 }
-                requestLlmToleratingReasoning(maxNudges).routeToToolsWhenPresent()
+                requestLlmToleratingReasoning(maxNudges)
             }
         }
 

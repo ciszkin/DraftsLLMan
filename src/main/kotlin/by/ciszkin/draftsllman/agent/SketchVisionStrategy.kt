@@ -42,7 +42,7 @@ fun sketchVisionStrategy(sink: SketchSink, maxNudges: Int = 3): AIAgentGraphStra
                         }
                     }
                 }
-                requestLlmToleratingReasoning(maxNudges).routeToToolsWhenPresent()
+                requestLlmToleratingReasoning(maxNudges)
             }
         }
         val nodeExecuteTool by nodeExecuteTools()
