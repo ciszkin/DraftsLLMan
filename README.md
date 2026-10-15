@@ -48,7 +48,7 @@ Prints the SVG to stdout and writes `output/<slug>-<epoch>.svg` + a full LLM/too
 ## Tests
 
 ```bash
-./gradlew test             # 454 deterministic tests — no network, headless
+./gradlew test             # 453 deterministic tests — no network, headless
 ./gradlew cleanTest test   # force re-run (Gradle skips unchanged test tasks)
 ./gradlew test --tests "by.ciszkin.draftsllman.solver.ConstraintSolverTest"
 ```

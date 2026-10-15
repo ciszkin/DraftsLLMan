@@ -51,13 +51,11 @@ class ModelsTest {
             "opencode (OpenAI-compatible gateway) must declare the chat-completions endpoint capability")
     }
 
-    @Test fun `defaultVisionLLM on opencode resolves the configured vision model`() {
-        // local.properties selects provider=opencode + opencode.visionmodel; S1 must get a
-        // VISION-capable model, not the text-only qwen3.8-flash.
-        val llm = defaultVisionLLM()
-        assertEquals(LLMProvider.OpenAI, llm.provider, "opencode vision model must use the OpenAI client")
-        assertTrue(llm.id.isNotBlank())
-    }
+    // NOTE: `defaultVisionLLM()` itself has no unit test — it reads ambient config
+    // (selectedProvider() / opencode.visionmodel), which violates the deterministic-suite
+    // convention (Models.kt: config is for live runs only; CI has no local.properties). The
+    // deterministic contract it relies on is covered by the llmForProvider tests above; the
+    // live path is exercised by the opt-in smoke tests.
 
     @Test fun `llmForProvider maps the local provider to Ollama`() {
         val llm = llmForProvider("ollama", "bonsai")
